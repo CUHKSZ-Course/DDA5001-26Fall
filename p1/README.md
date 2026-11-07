@@ -1,45 +1,67 @@
 # Part I: GPT Pre-training
 
-Train a GPT from scratch on Shakespeare. Complete the TODOs, then compare **AdamW, Muon, and SGDM**, with two learning rates each.
+Train a GPT on Shakespeare and compare **AdamW, Muon, and SGDM**. For each optimizer, run the provided default learning rate and one other rate you choose.
 
-## Setup
+## 1. Open the project
 
-Run the commands from p1/.
+Download and extract this repository. In the file manager, open the p1 folder, right-click an empty area, and select **Open in Terminal**.
 
-- **Classroom:** use lab-python instead of python. For the preinstalled copy, run lab-init, then cd ~/work/project1.
-- **Your own GPU:** follow [setup/README.md](setup/README.md).
+On a classroom machine, enter these commands one at a time:
 
-## Complete the code
+    source /opt/dda5001/venv/bin/activate
+    code .
 
-Fill the TODOs in:
+The first command selects the installed Python environment. The second opens the project in VS Code. Keep this terminal open to run the commands below.
 
-| File | Task |
-| --- | --- |
-| model.py | Causal mask and optimizer calls |
-| train.py | Shifted labels and parameter updates |
-| evaluate.py | Evaluation scores |
-| plot.py | Loss curves |
+On your own computer, follow [setup/README.md](setup/README.md) to prepare Python first.
+
+## 2. Complete the code
+
+Fill the TODOs in model.py, train.py, evaluate.py and plot.py. Then run:
 
     python check_solution.py
-    python train.py config/smoke.py --device=cpu --out_dir=runs/cpu-check
+    python train.py config/smoke.py --device=cpu --out_dir=checks/cpu
 
-## Run the experiments
+The second command is a small test of your code.
 
-Use the supplied [configuration](config/train_shakespeare_char.py):
+## 3. Run the default experiment
 
-    python run_experiments.py --output=runs/sweep01
+Open [config/train_shakespeare_char.py](config/train_shakespeare_char.py) in VS Code. It selects one optimizer and gives one default learning rate for each:
 
-This runs **3 optimizers × 2 learning rates = 6 experiments**. Keep other settings fixed and use a fresh output directory. Allow about 32 GiB for checkpoints.
+| optimizer_name | Learning-rate field | Default |
+| --- | --- | --- |
+| adamw | learning_rate | 0.0003 |
+| muon | muon_learning_rate | 0.01 |
+| sgdm | sgdm_learning_rate | 0.1 |
 
-## Results
+Run the unchanged configuration:
 
-Each run saves CSV metrics and logs for your plots and analysis. Use last.pt for endpoint results. For example:
+    python train.py config/train_shakespeare_char.py
 
-    python plot.py --run-dir=runs/sweep01/00-adamw-tokens-lr0.3
-    python sample.py --checkpoint=runs/sweep01/00-adamw-tokens-lr0.3/last.pt --tokens=400
-    python plot.py --sweep-dir=runs/sweep01
-    python export_results.py --sweep-dir=runs/sweep01 --output=results01.zip
+This runs **one AdamW experiment** and saves its results in runs/adamw-default. Wait for it to finish before starting the next run.
 
-Plot all six runs and generate one text sample. Discuss learning-rate effects and any crossover in these runs.
+## 4. Choose another learning rate
 
-Add your report PDF to the exported ZIP. Keep checkpoints locally.
+Copy the original configuration in VS Code and save it as `config/adamw-other.py`. In the copy, change `learning_rate` to your chosen value and set `out_dir = 'runs/adamw-other'`. Then run:
+
+    python train.py config/adamw-other.py
+
+If loss decreases slowly and smoothly, try a larger learning rate. If it fluctuates strongly or rises, try a smaller one. Halving or doubling the default is a starting point.
+
+For Muon and SGDM, start from fresh copies of the original configuration. Set `optimizer_name`, edit the corresponding learning-rate field, and give each run its own `out_dir`. Keep the other settings fixed.
+
+You will have **six separate runs**: a default and a chosen learning rate for each optimizer.
+
+## 5. Plot and submit
+
+For one run:
+
+    python plot.py --run-dir=runs/adamw-default
+    python sample.py --checkpoint=runs/adamw-default/last.pt --tokens=400
+
+Make individual plots for all six runs and generate one representative text sample. Once they are complete, compare and export the results:
+
+    python plot.py --runs-dir=runs
+    python export_results.py --runs-dir=runs --output=results01.zip
+
+Discuss the learning-rate effects and any crossover visible in these curves. Add your report PDF to the exported ZIP. Keep checkpoints locally.

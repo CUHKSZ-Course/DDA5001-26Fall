@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from run_records import load_runs
 
 
 def draw_loss_curves(ax, rows, x_key, x_label, series, **line_options):
@@ -31,10 +32,7 @@ def plot_run(run_dir):
 def plot_sweep(sweep_dir):
     """Compare recorded trajectories only; no retraining or automatic crossover claim."""
     sweep_dir = Path(sweep_dir)
-    metadata = json.loads((sweep_dir / 'sweep.json').read_text(encoding='utf-8'))
-    trials = metadata['trials']
-    if metadata.get('status', 'completed') != 'completed' or not trials or any(trial['returncode'] for trial in trials):
-        raise ValueError('Comparison requires a completed sweep')
+    trials = load_runs(sweep_dir)
     groups, warnings, images = {}, [], []
     for trial in trials:
         # Prefer colocated run folders so a downloaded result archive stays usable.
@@ -52,17 +50,16 @@ def plot_sweep(sweep_dir):
         method, multiplier = config['optimizer_name'], config['lr_multiplier']
         base = config[{'adamw':'learning_rate', 'muon':'muon_learning_rate', 'sgdm':'sgdm_learning_rate'}[method]]
         rate_label='peak LR' if config.get('lr_schedule')=='cosine' else 'LR'
-        label = f'{method}, {rate_label}={base*multiplier:g}'
-        if method == 'muon':
-            label += f" (aux={config['learning_rate']*multiplier:g})"
-        groups.setdefault(trial['protocol'], []).append((method, multiplier, label, rows))
+        rate = base * multiplier
+        label = f'{method}, {rate_label}={rate:g}'
+        groups.setdefault(trial['protocol'], []).append((method, rate, label, rows))
     colors = {'adamw':'tab:blue', 'muon':'tab:orange', 'sgdm':'tab:green'}
     for protocol, runs in groups.items():
-        multipliers = sorted({r[1] for r in runs})
         for x_key, x_label in (('tokens', 'Training prediction tokens'), ('train_seconds', 'Training time (s)')):
             fig, ax = plt.subplots(figsize=(8, 5))
-            for method, multiplier, label, rows in runs:
-                style = ['-', '--', ':', '-.'][multipliers.index(multiplier) % 4]
+            for method, rate, label, rows in runs:
+                rates = sorted({r[1] for r in runs if r[0] == method})
+                style = ['-', '--', ':', '-.'][rates.index(rate) % 4]
                 draw_loss_curves(ax, rows, x_key, x_label, [('val_loss', label)],
                                  color=colors[method], linestyle=style)
             ax.set_title(f'Validation trajectories: fixed-{protocol} runs')
@@ -81,9 +78,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--run-dir')
-    mode.add_argument('--sweep-dir')
+    mode.add_argument('--runs-dir', '--sweep-dir', dest='runs_dir')
     args = parser.parse_args()
-    if args.sweep_dir:
-        print(json.dumps(plot_sweep(args.sweep_dir), indent=2))
+    if args.runs_dir:
+        print(json.dumps(plot_sweep(args.runs_dir), indent=2))
     else:
         plot_run(args.run_dir)

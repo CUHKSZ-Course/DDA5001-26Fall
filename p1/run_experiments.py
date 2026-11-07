@@ -1,4 +1,4 @@
-"""Small LR sweep. Same-GPU parallelism is allowed only for fixed-token screening."""
+"""Optional batch runner. Defaults to the optimizer and LR in the chosen config."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import itertools
@@ -24,8 +24,8 @@ def resolve_config_path(filename):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='config/train_shakespeare_char.py')
-    parser.add_argument('--optimizers', default='adamw,muon,sgdm')
-    parser.add_argument('--multipliers', default='0.3,1')
+    parser.add_argument('--optimizers', default=None)
+    parser.add_argument('--multipliers', default=None)
     parser.add_argument('--protocol', choices=['tokens', 'time', 'both'], default='tokens')
     parser.add_argument('--tokens', type=int, default=None, help='Override max_tokens; otherwise use the selected config')
     parser.add_argument('--seconds', type=float, default=180)
@@ -34,8 +34,13 @@ def main():
     parser.add_argument('--output', required=True, help='New sweep directory')
     args = parser.parse_args()
     args.config = str(resolve_config_path(args.config))
+    config = load_config(DEFAULTS, [args.config])
     if args.tokens is None:
-        args.tokens = load_config(DEFAULTS, [args.config])['max_tokens']
+        args.tokens = config['max_tokens']
+    if args.optimizers is None:
+        args.optimizers = config['optimizer_name']
+    if args.multipliers is None:
+        args.multipliers = str(config['lr_multiplier'])
     methods, multipliers = args.optimizers.split(','), [float(v) for v in args.multipliers.split(',')]
     devices = args.devices.split(',')
     if args.jobs < 1 or any(not math.isfinite(v) or v <= 0 for v in multipliers) or any(m not in ('adamw', 'muon', 'sgdm') for m in methods):

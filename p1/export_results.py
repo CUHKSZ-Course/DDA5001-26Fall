@@ -5,16 +5,14 @@ import json
 import os
 from pathlib import Path
 import zipfile
+from run_records import load_runs
 
 ROOT = Path(__file__).resolve().parent
 
 
 def export_results(sweep_dir, output):
     sweep_dir, output = Path(sweep_dir).resolve(), Path(output).resolve()
-    metadata = json.loads((sweep_dir/'sweep.json').read_text(encoding='utf-8'))
-    trials = metadata['trials']
-    if metadata.get('status', 'completed') != 'completed' or not trials or any(t['returncode'] for t in trials):
-        raise ValueError('Only a completed sweep can be exported for submission')
+    trials = load_runs(sweep_dir)
     for trial in trials:
         run_dir = sweep_dir / Path(trial['run_dir'].replace('\\', '/')).name
         if run_dir.resolve().parent != sweep_dir:
@@ -62,7 +60,7 @@ def export_results(sweep_dir, output):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sweep-dir', required=True)
+    parser.add_argument('--runs-dir', '--sweep-dir', dest='runs_dir', required=True)
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
-    print(json.dumps(export_results(args.sweep_dir, args.output), indent=2))
+    print(json.dumps(export_results(args.runs_dir, args.output), indent=2))

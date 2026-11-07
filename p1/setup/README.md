@@ -1,26 +1,24 @@
 # Personal GPU setup
 
-Run these commands from p1/ on Linux or WSL. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) first.
+Open a terminal in the repository's p1 folder. On Linux or WSL, install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
 
     bash setup/setup-local.sh cuda
     source .venv/bin/activate
 
-Use this environment's python for the project.
+The first command installs the Python environment; the second selects it. Use this terminal for the project commands.
 
 ## Smaller GPUs
 
-The default configuration uses about 20 GiB of GPU memory. To reduce memory usage, copy the configuration first:
-
-    cp config/train_shakespeare_char.py config/personal.py
-
-Then edit the copy, keeping effective batch size 72. For example:
+The default model uses about 20 GiB of GPU memory. Copy config/train_shakespeare_char.py to config/personal.py before changing the hardware settings. For example:
 
     batch_size = 8
     gradient_accumulation_steps = 9
     eval_iters = 72
 
-This preserves the training batch and evaluation size. Run with your copy:
+This keeps the training batch and evaluation size unchanged. If your system cannot run torch.compile, set compile = False.
 
-    python run_experiments.py --config=config/personal.py --output=runs/sweep01
+Use this adapted file as the starting point for each optimizer's experiments. Set optimizer_name, its learning rate and out_dir, then run one experiment with:
 
-If your system cannot run torch.compile, set compile = False. Use the same configuration for all six runs and report your changes.
+    python train.py config/personal.py
+
+Use the same hardware settings for all six runs and report your changes. Allow about 32 GiB of disk space for checkpoints.

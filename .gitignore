@@ -15,6 +15,7 @@ Thumbs.db
 # Runs and generated artifacts. The supplied data/*.bin and meta.pkl are tracked.
 runs/
 outputs/
+checks/
 setup-evidence/
 *.pt
 *.pth
