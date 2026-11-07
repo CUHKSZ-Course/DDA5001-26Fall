@@ -12,7 +12,7 @@ On a classroom machine, select the installed Python environment:
 
 Run the commands below in this terminal.
 
-On your own computer, follow [setup/README.md](setup/README.md) to prepare Python first.
+If you cannot access a school workstation, use your own computer and follow [setup/README.md](setup/README.md) to set up the environment.
 
 ## 2. Complete the code
 
