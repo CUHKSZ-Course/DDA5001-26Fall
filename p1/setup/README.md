@@ -1,6 +1,6 @@
 # Personal GPU setup
 
-Open a terminal in the repository's p1 folder. On Linux or WSL, install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
+Open the p1 folder in VS Code and select **Terminal → New Terminal**. On Linux or WSL, install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
 
     bash setup/setup-local.sh cuda
     source .venv/bin/activate

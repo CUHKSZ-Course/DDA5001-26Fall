@@ -4,14 +4,13 @@ Train a GPT on Shakespeare and compare **AdamW, Muon, and SGDM**. For each optim
 
 ## 1. Open the project
 
-Download and extract this repository. In the file manager, open the p1 folder, right-click an empty area, and select **Open in Terminal**.
+Download and extract this repository. In VS Code, choose **File → Open Folder** and open the p1 folder. Then choose **Terminal → New Terminal**.
 
-On a classroom machine, enter these commands one at a time:
+On a classroom machine, select the installed Python environment:
 
     source /opt/dda5001/venv/bin/activate
-    code .
 
-The first command selects the installed Python environment. The second opens the project in VS Code. Keep this terminal open to run the commands below.
+Run the commands below in this terminal.
 
 On your own computer, follow [setup/README.md](setup/README.md) to prepare Python first.
 
@@ -53,6 +52,8 @@ For Muon and SGDM, start from fresh copies of the original configuration. Set `o
 You will have **six separate runs**: a default and a chosen learning rate for each optimizer.
 
 ## 5. Plot and submit
+
+This codebase provides the training pipeline and basic plots. You may write your own analysis scripts or modify the plotting and analysis code.
 
 For one run:
 
