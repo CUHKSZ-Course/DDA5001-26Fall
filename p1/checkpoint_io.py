@@ -1,7 +1,4 @@
-"""Durable checkpoint commits and bounded process supervision.
-
-These measures expose/limit a host failure; they do not repair a kernel or vDTS bug.
-"""
+"""Checkpoint saving and process monitoring."""
 import os
 import errno
 from pathlib import Path

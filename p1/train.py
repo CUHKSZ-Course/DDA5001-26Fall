@@ -132,7 +132,7 @@ def run(config):
     train_generator = torch.Generator().manual_seed(config['seed'] + 1)
     data_dir = Path(config['data_dir'])
     with (data_dir / 'meta.pkl').open('rb') as stream:
-        meta = pickle.load(stream)  # supplied course tokenizer, not an arbitrary downloaded pickle
+        meta = pickle.load(stream)  # supplied course tokenizer
     data = {split: torch.from_numpy(np.fromfile(data_dir / f'{split}.bin', dtype=np.uint16).astype(np.int64))
             for split in ('train', 'val')}
     if any(len(values) <= config['block_size'] for values in data.values()):

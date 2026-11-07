@@ -9,8 +9,6 @@ deadlines and submission requirements.
 | Part II | Coming later |
 | Part III | Coming later |
 
-Each part has its own folder. Start with the [Part I instructions](p1/README.md).
-
 Based on [nanoGPT](https://github.com/karpathy/nanoGPT) and the
 [2025 course code](https://github.com/CUHKSZ-Course/DDA5001-25Fall).
 See [LICENSE](LICENSE).

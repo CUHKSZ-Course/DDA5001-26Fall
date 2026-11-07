@@ -1,4 +1,4 @@
-"""Small real training/checkpoint smoke test, not a benchmark or course solution."""
+"""Check training updates and checkpoint save/reload."""
 import argparse
 import io
 import json

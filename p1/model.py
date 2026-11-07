@@ -118,8 +118,7 @@ class GPTConfig:
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
 
-# Dimensions copied from nanoGPT's existing GPT-2 preset table. These select only
-# architecture dimensions, never pretrained weights, tokenizer or a download path.
+# nanoGPT model dimensions for training from scratch.
 GPT2_PRESETS = {
     'gpt2': dict(n_layer=12, n_head=12, n_embd=768),
     'gpt2-medium': dict(n_layer=24, n_head=16, n_embd=1024),
@@ -270,11 +269,7 @@ class GPT(nn.Module):
         return optimizers
 
     def estimate_mfu(self, fwdbwd_per_iter, dt, peak_tflops=None):
-        """Approximate MFU using an explicit precision-specific dense GPU peak.
-
-        The trainer does not call this helper. AI TOPS, sparse rates, GPU activity
-        percentages, and another GPU's peak are not interchangeable denominators.
-        """
+        """Estimate MFU using the GPU's dense peak TFLOPS at the chosen precision."""
         if peak_tflops is None or not all(math.isfinite(x) and x > 0
                                          for x in (fwdbwd_per_iter, dt, peak_tflops)):
             raise ValueError('Supply positive batch count, elapsed seconds and a verified dense peak_tflops')

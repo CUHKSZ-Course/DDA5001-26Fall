@@ -5,10 +5,10 @@ Train a GPT from scratch on Shakespeare. Complete the TODOs, then compare
 
 ## Setup
 
-Work in this repository's p1/ folder.
+Run the commands from p1/.
 
-- **Classroom:** use lab-python instead of python below. The environment is ready.
-  If using the preinstalled starter, run lab-init, then cd ~/work/project1.
+- **Classroom:** use lab-python instead of python. For the preinstalled copy,
+  run lab-init, then cd ~/work/project1.
 - **Your own GPU:** follow [setup/README.md](setup/README.md).
 
 ## Complete the code
@@ -22,8 +22,6 @@ Fill the TODOs in:
 | evaluate.py | Evaluation scores |
 | plot.py | Loss curves |
 
-Then check your code:
-
     python check_solution.py
     python train.py config/smoke.py --device=cpu --out_dir=runs/cpu-check
 
@@ -33,27 +31,20 @@ Use the supplied [configuration](config/train_shakespeare_char.py):
 
     python run_experiments.py --output=runs/sweep01
 
-This runs **3 optimizers × 2 learning rates = 6 experiments**. Keep the other
-settings fixed. Use a new output directory for another sweep.
-
-The classroom preset needs about 20 GiB of GPU memory. Its six runs produce about
-32 GiB of checkpoints, so check quota -s before starting.
+This runs **3 optimizers × 2 learning rates = 6 experiments**. Keep other settings
+fixed and use a fresh output directory. Allow about 32 GiB for checkpoints.
 
 ## Results
 
-Each run saves its configuration, CSV metrics, summary, logs and checkpoints.
-Use last.pt for endpoint results. You may write your own analysis scripts.
-
-For example:
+Each run saves CSV metrics and logs for your plots and analysis. Use last.pt for
+endpoint results. For example:
 
     python plot.py --run-dir=runs/sweep01/00-adamw-tokens-lr0.3
     python sample.py --checkpoint=runs/sweep01/00-adamw-tokens-lr0.3/last.pt --tokens=400
     python plot.py --sweep-dir=runs/sweep01
     python export_results.py --sweep-dir=runs/sweep01 --output=results01.zip
 
-Make individual plots for all six runs and generate text from one representative
-endpoint. Discuss learning-rate effects and any crossover visible in these curves;
-no extra training is required.
+Plot all six runs and generate one text sample. Discuss learning-rate effects and
+any crossover in these runs.
 
-Add your report PDF to the submission ZIP. Checkpoints and data are excluded;
-keep checkpoints locally. See the handbook for the report requirements.
+Add your report PDF to the exported ZIP. Keep checkpoints locally.

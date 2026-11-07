@@ -1,4 +1,4 @@
-"""Save machine evidence and derive a CUDA wheel plan; never read credentials."""
+"""Detect GPU drivers and select a PyTorch build."""
 import argparse
 import csv
 from datetime import datetime, timezone
