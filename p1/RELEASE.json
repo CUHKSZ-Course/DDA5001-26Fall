@@ -1,8 +1,0 @@
-{
-  "release": "20261107-r6",
-  "audience": "student-p1",
-  "training": "random initialization",
-  "model_preset": "gpt2-medium",
-  "max_tokens": 92160000,
-  "updates": 5000
-}
