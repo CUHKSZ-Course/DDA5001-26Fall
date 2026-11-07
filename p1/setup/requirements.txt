@@ -1,0 +1,10 @@
+# Instructor pilot baseline. CUDA wheel selection follows the inspected driver.
+# First installation resolves these ranges; requirements-resolved.txt records ALL versions.
+numpy>=2.2,<3
+matplotlib>=3.10,<4
+tiktoken>=0.9,<1
+tqdm>=4.67,<5
+requests>=2.32,<3
+pytest>=8,<9
+jupyterlab>=4.4,<5
+ipykernel>=6.29,<7

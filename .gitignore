@@ -1,0 +1,33 @@
+# Local environments, caches and editor state.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.cache/
+node_modules/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Runs and generated artifacts. The supplied data/*.bin and meta.pkl are tracked.
+runs/
+outputs/
+setup-evidence/
+*.pt
+*.pth
+*.ckpt
+*.pt.sha256
+*.log
+*.tmp
+*.zip
+requirements-local-resolved.txt
+
+# Personal credentials and agent state.
+.env
+.env.*
+!.env.example
+.codex/
+.opencode/

@@ -1,0 +1,31 @@
+# nanoGPT's existing medium dimensions; random initialization, no pretrained weights.
+# Validated six-run menu: about 2h22 total measured trial time on classroom 5090D v2.
+model_preset = 'gpt2-medium'     # 24 layers / 16 heads / width 1024
+block_size = 256
+batch_size = 72
+gradient_accumulation_steps = 1  # effective batch 72; 18,432 prediction tokens/update
+dropout = 0.2
+max_tokens = 92160000            # 5,000 completed updates; common budget for all six runs
+max_seconds = 0.0
+eval_interval = 500
+eval_iters = 8                   # 576 fixed windows per split and evaluation point
+warmup_iters = 100
+lr_schedule = 'cosine'           # nanoGPT's warmup + cosine shape
+lr_decay_iters = 5000            # fixed horizon, also retained during resume
+min_lr_ratio = 0.1               # each optimizer's ending LR / its peak LR
+optimizer_name = 'adamw'
+learning_rate = 3e-4             # peak LRs: 0.00009 and 0.0003 (also auxiliary AdamW)
+muon_learning_rate = 1e-2        # native Muon/original: peaks 0.003 and 0.01
+sgdm_learning_rate = 0.1         # SGDM peaks: 0.03 and 0.1
+sgdm_momentum = 0.9
+sgdm_nesterov = False          # classical momentum SGD; no extra student tuning axis
+lr_multiplier = 1.0              # the required sweep explicitly runs 0.3 and 1
+weight_decay = 0.0             # common comparison setting for all three methods
+grad_clip = 1.0
+beta1 = 0.9
+beta2 = 0.99
+muon_momentum = 0.95
+seed = 42
+eval_seed = 1729
+dtype = 'auto'                  # native BF16 on classroom GPUs
+compile = True                 # standard torch.compile; shared g++ is installed by workstation setup

@@ -1,0 +1,12 @@
+n_layer = 2
+n_head = 2
+n_embd = 64
+block_size = 32
+batch_size = 4
+gradient_accumulation_steps = 1
+dropout = 0.0
+max_tokens = 1024
+max_seconds = 0.0
+eval_interval = 4
+eval_iters = 2
+warmup_iters = 0
