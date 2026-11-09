@@ -21,4 +21,4 @@ Use this adapted file as the starting point for each optimizer's experiments. Se
 
     python train.py config/personal.py
 
-Use the same hardware settings for all six runs and report your changes. Allow about 32 GiB of disk space for checkpoints.
+Use the same hardware settings for all six runs and report your changes. Allow at least 37 GiB of free disk space for the six runs: best/last checkpoints use about 31.6 GiB, and saving a checkpoint temporarily requires up to another 3.4 GiB. Keep additional space for your own files.
