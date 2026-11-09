@@ -16,12 +16,22 @@ If you cannot access a school workstation, use your own computer and follow [set
 
 ## 2. Complete the code
 
-Fill the TODOs in model.py, train.py, evaluate.py and plot.py. Then run:
+Complete the **seven guided TODO blocks** in model.py, train.py and plot.py.
+`evaluate.py` is fully provided: keep its token-mean loss, perplexity and bits per
+character unchanged. Read [AGENTS.md](AGENTS.md) when using a coding agent.
+
+The templates supply the optimizer class names, parameter groups and control
+flow. Replace only the indicated `todo(...)` calls: use native `torch.optim`
+classes and the supplied arguments, with no custom optimizer implementation.
+The optimizer loop is provided; each optimizer must step exactly once after
+gradient accumulation and clipping. Then run:
 
     python check_solution.py
     python train.py config/smoke.py --device=cpu --out_dir=checks/cpu
 
-The second command is a small test of your code.
+The checker verifies exact optimizer types, parameter membership/hyperparameters,
+exactly-once updates, shifted positions, causal masking and plotting. The second
+command is a small end-to-end test. Keep the checks unchanged.
 
 ## 3. Run the default experiment
 

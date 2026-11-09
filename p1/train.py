@@ -18,6 +18,7 @@ from configurator import load_config
 from evaluate import language_model_scores
 from model import GPT, GPTConfig, resolve_model_preset
 from checkpoint_io import atomic_torch_save, assert_kernel_healthy
+from exercise_helpers import todo
 
 ROOT = Path(__file__).resolve().parent
 DEFAULTS = dict(out_dir='', data_dir=str(ROOT / 'data/shakespeare_char'), group_id='pilot',
@@ -36,7 +37,22 @@ def prediction_windows(data, starts, block_size):
     """Given 1-D token data and start indices, return aligned [B,T] inputs/targets."""
     offsets = torch.arange(block_size)
     # TODO shifted_labels: Return [B,T] inputs and next-token targets shifted by exactly one position.
-    raise NotImplementedError("TODO: shifted_labels")
+    # x and y must index the SAME original token sequence. Fill the offset
+    # for the next token position; do not add a number to token IDs themselves.
+    x = data[starts[:, None] + offsets]
+    y = data[starts[:, None] + offsets + todo("shifted_labels.offset")]
+    return x, y
+
+
+def step_optimizers(optimizers):
+    """Step each provided optimizer once; backward/accumulation/clipping are elsewhere."""
+    for optimizer in optimizers:
+        # TODO optimizer_step: Update all optimizers after backpropagation and gradient clipping.
+        # Replace this ONE placeholder with optimizer.step(), with no arguments.
+        # The enclosing loop is provided: every optimizer must step exactly once.
+        # Do not add backward, zero_grad, clipping, closures or another loop here.
+        # This helper is called once AFTER all gradient accumulation and clipping.
+        todo("optimizer_step")
 
 
 def get_batch(data, generator, config, device):
@@ -269,8 +285,7 @@ def run(config):
                     loss.backward()
                 # error_if_nonfinite ensures no optimizer is updated after nonfinite gradients.
                 torch.nn.utils.clip_grad_norm_(model.parameters(), config['grad_clip'] or float('inf'), error_if_nonfinite=True)
-                # TODO optimizer_step: Update all optimizers after backpropagation and gradient clipping.
-                raise NotImplementedError("TODO: optimizer_step")
+                step_optimizers(optimizers)
                 synchronize()
                 train_seconds += time.perf_counter() - tick
                 step += 1

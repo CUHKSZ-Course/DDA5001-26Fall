@@ -7,12 +7,22 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from run_records import load_runs
+from exercise_helpers import todo
 
 
 def draw_loss_curves(ax, rows, x_key, x_label, series, **line_options):
     """series contains (CSV column, legend label) pairs. Same TODO for all figures."""
-    # TODO plots: Plot each (CSV column, label) in series against x_key on ax, forwarding line_options; label axes and add a legend.
-    raise NotImplementedError("TODO: plots")
+    for field, label in series:
+        xs = [float(row[x_key]) for row in rows]
+        ys = [float(row[field]) for row in rows]
+        # TODO plots: Plot each (CSV column, label) in series against x_key on ax, forwarding line_options; label axes and add a legend.
+        # Fill only the x/y arguments with the prepared xs/ys, respectively.
+        # Keep label, marker, markersize and **line_options. Axis labels, legend,
+        # CSV aggregation, evaluation and file saving are provided outside this block.
+        ax.plot(todo("plots.x"), todo("plots.y"),
+                label=label, marker='o', markersize=3, **line_options)
+    ax.set(xlabel=x_label, ylabel='Cross-entropy loss (nats / character)')
+    ax.legend(fontsize=8)
 
 
 def plot_run(run_dir):

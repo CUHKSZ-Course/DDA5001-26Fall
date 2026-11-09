@@ -14,12 +14,16 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from exercise_helpers import todo
 
 
 def causal_mask(size, device=None):
     """Boolean [T,T] mask: True permits attending to that key (including self)."""
     # TODO causal_mask: Return a boolean lower-triangular [size,size] mask, including the diagonal.
-    raise NotImplementedError("TODO: causal_mask")
+    # Keep the supplied shape, dtype and device. Choose the tril diagonal
+    # that permits the current token and all earlier tokens, never future tokens.
+    return torch.ones(size, size, dtype=torch.bool, device=device).tril(
+        diagonal=todo("causal_mask.diagonal"))
 
 class LayerNorm(nn.Module):
     """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """
@@ -242,10 +246,19 @@ class GPT(nn.Module):
 
         if optimizer_name == 'adamw':
             # TODO optimizer_adamw: Set optimizers to a list containing AdamW(all_groups) with the supplied LR, betas and extra_args.
-            raise NotImplementedError("TODO: optimizer_adamw")
+            # Use ONLY torch.optim.AdamW. Keep all_groups, betas and extra_args.
+            # Fill lr from this function's learning_rate argument; do not hard-code,
+            # rescale it, implement an optimizer, or import an optimizer from another file.
+            optimizers = [torch.optim.AdamW(
+                all_groups, lr=todo("optimizer_adamw.lr"), betas=betas, **extra_args)]
         elif optimizer_name == 'sgdm':
             # TODO optimizer_sgdm: Set optimizers to a list containing SGD(all_groups) with the supplied SGDM LR, momentum and Nesterov setting.
-            raise NotImplementedError("TODO: optimizer_sgdm")
+            # Use ONLY torch.optim.SGD (momentum SGD), not Adam or a custom class.
+            # Fill lr from sgdm_learning_rate. Keep the supplied momentum/Nesterov
+            # settings and parameter groups; do not create an auxiliary optimizer.
+            optimizers = [torch.optim.SGD(
+                all_groups, lr=todo("optimizer_sgdm.lr"),
+                momentum=sgdm_momentum, nesterov=sgdm_nesterov)]
         elif optimizer_name == 'muon':
             if not hasattr(torch.optim, 'Muon'):
                 raise RuntimeError('This course version requires PyTorch >= 2.9 with torch.optim.Muon')
@@ -256,7 +269,17 @@ class GPT(nn.Module):
             # Muon handles hidden matrices; AdamW handles embeddings, tied head, norms and biases.
             # Keep the documented checkpoint/log order: auxiliary AdamW, then Muon.
             # TODO optimizer_muon: Construct auxiliary AdamW(other_groups) and torch.optim.Muon(hidden, adjust_lr_fn="original") using the supplied LRs/momentum/weight decay; set optimizers=[auxiliary, muon].
-            raise NotImplementedError("TODO: optimizer_muon")
+            # Use ONLY native torch.optim.Muon plus the supplied auxiliary AdamW.
+            # Fill Muon's lr and momentum from muon_learning_rate and muon_momentum.
+            # Keep hidden/other_groups, auxiliary LR/betas, weight_decay, extra_args,
+            # adjust_lr_fn='original', and list order EXACTLY as provided.
+            # Do not implement Newton-Schulz or an optimizer in another module, change
+            # parameter membership, use a fallback optimizer, or add extra updates.
+            auxiliary = torch.optim.AdamW(other_groups, lr=learning_rate, betas=betas, **extra_args)
+            muon = torch.optim.Muon(
+                hidden, lr=todo("optimizer_muon.lr"), momentum=todo("optimizer_muon.momentum"),
+                weight_decay=weight_decay, adjust_lr_fn='original')
+            optimizers = [auxiliary, muon]
         else:
             raise ValueError('optimizer_name must be adamw, sgdm or muon')
 
