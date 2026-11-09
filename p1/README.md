@@ -4,7 +4,7 @@ Train a GPT on Shakespeare and compare **AdamW, Muon, and SGDM**. For each optim
 
 ## 1. Open the project
 
-Download and extract this repository. In VS Code, choose **File → Open Folder** and open the p1 folder. Then choose **Terminal → New Terminal**.
+If needed, download and extract this repository. In VS Code, open the folder containing `train.py` (`p1` in this repository), then choose **Terminal → New Terminal**.
 
 On a classroom machine, select the installed Python environment:
 
@@ -12,7 +12,7 @@ On a classroom machine, select the installed Python environment:
 
 Run the commands below in this terminal.
 
-If you cannot access a school workstation, use your own computer and follow [setup/README.md](setup/README.md) to set up the environment.
+On your own machine, follow [setup/README.md](setup/README.md) to set up the environment.
 
 ## 2. Complete the code
 
@@ -24,7 +24,7 @@ The templates supply the optimizer class names, parameter groups and control
 flow. Replace only the indicated `todo(...)` calls: use native `torch.optim`
 classes and the supplied arguments, with no custom optimizer implementation.
 The optimizer loop is provided; each optimizer must step exactly once after
-gradient accumulation and clipping. Then run:
+gradient accumulation and clipping. Run the checker first; only if it passes, run the CPU smoke test:
 
     python check_solution.py
     python train.py config/smoke.py --device=cpu --out_dir=checks/cpu
@@ -35,7 +35,7 @@ command is a small end-to-end test. Keep the checks unchanged.
 
 ## 3. Run the default experiment
 
-Open [config/train_shakespeare_char.py](config/train_shakespeare_char.py) in VS Code. It selects one optimizer and gives one default learning rate for each:
+Open [config/train_shakespeare_char.py](config/train_shakespeare_char.py) in VS Code. It selects one optimizer and gives one default peak learning rate for each:
 
 | optimizer_name | Learning-rate field | Default |
 | --- | --- | --- |
