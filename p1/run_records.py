@@ -17,7 +17,12 @@ def load_runs(directory):
             if not folder.is_dir() or not (folder / 'config.json').is_file():
                 continue
             config = json.loads((folder / 'config.json').read_text(encoding='utf-8'))
-            summary = json.loads((folder / 'summary.json').read_text(encoding='utf-8'))
+            summary_path = folder / 'summary.json'
+            if not summary_path.is_file():
+                raise ValueError(f'Incomplete run: {folder.name} (summary.json is missing)')
+            summary = json.loads(summary_path.read_text(encoding='utf-8'))
+            if summary.get('status') != 'completed':
+                raise ValueError(f'Incomplete run: {folder.name} (status={summary.get("status", "unknown")})')
             trials.append({'run_dir': str(folder), 'optimizer': config['optimizer_name'],
                            'protocol': summary['budget'],
                            'returncode': 0 if summary['status'] == 'completed' else 1})

@@ -1,6 +1,6 @@
 """Optional batch runner. Defaults to the optimizer and LR in the chosen config."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_EXCEPTION
 import itertools
 import json
 import math
@@ -11,7 +11,7 @@ import sys
 import threading
 from configurator import load_config
 from train import DEFAULTS
-from checkpoint_io import run_monitored, KernelHealthError
+from checkpoint_io import run_monitored, KernelHealthError, RunInterrupted, interruption_signals
 
 
 def resolve_config_path(filename):
@@ -57,6 +57,7 @@ def main():
     for index, trial in enumerate(trials):
         lanes[index % args.jobs].append((index, trial))
     results = []
+    cancel = threading.Event()
     record_lock = threading.Lock()
     def save_sweep(status):
         temporary = output / 'sweep.json.tmp'
@@ -68,6 +69,7 @@ def main():
         outcomes = []
         device = devices[lane % len(devices)]
         for index, (protocol, method, multiplier) in lanes[lane]:
+            if cancel.is_set(): break
             run_dir = output / f'{index:02d}-{method}-{protocol}-lr{multiplier:g}'
             command = [sys.executable, 'train.py', args.config, f'--optimizer_name={method}',
                 f'--lr_multiplier={multiplier}', f'--out_dir={run_dir}',
@@ -80,10 +82,14 @@ def main():
             failure=None
             with (output / f'{index:02d}.log').open('w', encoding='utf-8') as stream:
                 try:
-                    result = run_monitored(command,cwd=Path(__file__).parent,env=env,stdout=stream,stderr=subprocess.STDOUT)
+                    result = run_monitored(command,cwd=Path(__file__).parent,env=env,stdout=stream,stderr=subprocess.STDOUT,
+                                           cancel_event=cancel)
                 except KernelHealthError as exc:
                     failure=str(exc);print(failure,file=sys.stderr,flush=True)
                     result=subprocess.CompletedProcess(command,125)
+                    cancel.set()
+                except RunInterrupted:
+                    break
             outcomes.append({'run_dir': str(run_dir), 'returncode': result.returncode, 'device': device,
                              'protocol': protocol, 'optimizer': method, 'lr_multiplier': multiplier,
                              **({'host_error':failure} if failure else {})})
@@ -93,11 +99,26 @@ def main():
             print(outcomes[-1], flush=True)
             if failure:break
         return outcomes
-    with ThreadPoolExecutor(max_workers=args.jobs) as executor:
-        list(executor.map(worker, range(args.jobs)))
+    with interruption_signals():
+        executor = ThreadPoolExecutor(max_workers=args.jobs)
+        try:
+            pending = {executor.submit(worker, lane) for lane in range(args.jobs)}
+            while pending:
+                done, pending = wait(pending, timeout=.2, return_when=FIRST_EXCEPTION)
+                for future in done: future.result()
+        except BaseException as exc:
+            cancel.set()
+            with interruption_signals(ignore=True):
+                executor.shutdown(wait=True, cancel_futures=True)
+            save_sweep('interrupted' if isinstance(exc, KeyboardInterrupt) else 'failed')
+            raise
+        else:
+            executor.shutdown(wait=True)
     save_sweep('failed' if any(row['returncode'] for row in results) else 'completed')
     raise SystemExit(1 if any(row['returncode'] for row in results) else 0)
 
 
 if __name__ == '__main__':
-    main()
+    try: main()
+    except KeyboardInterrupt as exc:
+        raise SystemExit(128 + getattr(exc, 'signum', 2))
