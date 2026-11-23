@@ -32,3 +32,8 @@ requirements-local-resolved.txt
 !.env.example
 .codex/
 .opencode/
+
+# Part II run outputs and staged assets.
+booking-run/
+assets/
+analysis.json
